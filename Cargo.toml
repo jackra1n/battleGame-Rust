@@ -1,5 +1,5 @@
 [package]
-name = "battleGameRust"
+name = "battle_game_rust"
 version = "0.1.0"
 edition = "2018"
 
