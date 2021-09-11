@@ -1,57 +1,70 @@
-use std::fs::File;
-use std::io::prelude::*;
 use std::io;
 use text_io::read;
 
+use crate::warrior::Warrior;
 
-fn get_menu(menu: &str) -> String {
-    let mut path = "resources/text_menus/".to_owned();
-    path.push_str(menu);
-    path.push_str(".txt");
-    let mut file = File::open(path).expect("Unable to open the file");
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("Unable to read the file");
-    return contents;
-}
+mod ui_maker;
+mod warrior;
 
-fn print_menu(menu: &str) {
-    print!("{}", get_menu(menu));
+fn main() {
+    ui_maker::print_menu("HomeScreen");
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read line");
+    print_menu_choose();
 }
 
 fn print_menu_choose() {
-    print!("{}", get_menu("MainMenu"));
-    let input: i32 = read!();
-    menu_choose(input)
+    ui_maker::print_menu("MainMenu");
+    menu_choose(read!());
 }
 
 fn menu_choose(option: i32) {
-    if option == 1 {
-        start_game();
+    match option {
+        1 => start_game(),
+        2 => ui_maker::print_menu("Instructions"),
+        3 => ui_maker::print_menu("Credits"),
+        4 => ui_maker::print_menu("ClassStats"),
+        _ => print_menu_choose(),
     }
-    else if option == 2 {
-        print_menu("Instructions");
-    }
-    else if option == 3 {
-        print_menu("Credits");
-    }
-    else if option == 4 {
-        print_menu("ClassStats")
-    }
+}
 
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Failed to read line");
-    
-    print!("it should wait before this");
-    print_menu_choose();
+fn check_names(name1: String, mut name2: String) {
+    if name1 == name2 {
+        println!("The names are the same. The second name will have '2' addded at the end.");
+        name2.push_str("2"); 
+    }
 }
 
 fn start_game() {
-    print!("Name the first warrior: ");
+    let mut name = String::new();
+
+    println!("Name the first warrior: ");
+    io::stdin().read_line( &mut name).expect("Failed to read line");
+    let mut warrior1 = Warrior::new(&name, 1, 1, 1);
+    ui_maker::class_chooser();
+    warrior1.choose_class(read!());
+
+    println!("Name the second warrior: ");
+    io::stdin().read_line( &mut name).expect("Failed to read line");
+    let mut warrior2 = Warrior::new(&name, 1, 1, 1);
+    ui_maker::class_chooser();
+    warrior2.choose_class(read!());
+
+    check_names(warrior1.name, warrior2.name);
+    start_game();
 }
 
-fn main() {
-    print_menu("HomeScreen");
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Failed to read line");
-    print_menu_choose();
+fn start_fight(warrior1: Warrior, warrior2: Warrior) {
+    while warrior1.health > 0 || warrior2.health > 0 {
+        if check_for_winner(warrior1, warrior2) {
+            break;
+        }
+        if check_for_winner(warrior2, warrior1) {
+            break;
+        }
+    }
+}
+
+fn check_for_winner(warrior1: Warrior, warrior2: Warrior) -> bool {
+    
 }
